@@ -16,8 +16,11 @@ protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: tru
 
 function createWindow () {
   // Create the browser window.
-  win = new BrowserWindow({ width: 800,
-    height: 600,
+  win = new BrowserWindow({
+    width: 1080,
+    height: 720,
+    frame: false,
+    resizable: false,
     webPreferences: {
       nodeIntegration: true
     } })
@@ -32,6 +35,7 @@ function createWindow () {
     win.loadURL('app://./index.html')
   }
 
+  win.removeMenu()
   win.on('closed', () => {
     win = null
   })

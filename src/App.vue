@@ -1,29 +1,101 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
-  </div>
+  <v-app>
+    <v-content>
+    <v-toolbar dense flat class=titlebar>
+      <!-- <v-app-bar-nav-icon></v-app-bar-nav-icon> -->
+
+      <v-toolbar-title>{{title}}</v-toolbar-title>
+
+      <v-spacer></v-spacer>
+
+      <v-btn icon class=icon @click="minimize()">
+        <v-icon>minimize</v-icon>
+      </v-btn>
+
+      <v-btn icon class=icon @click="maximize()">
+        <v-icon>tab</v-icon>
+      </v-btn>
+
+      <v-btn icon class=icon @click="close()">
+        <v-icon>close</v-icon>
+      </v-btn>
+    </v-toolbar>
+      <Main />
+    </v-content>
+  </v-app>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import HelloWorld from './components/HelloWorld.vue'
+import Main from './components/Main.vue'
+import { remote } from 'electron'
 
 @Component({
   components: {
-    HelloWorld
+    Main
   }
 })
-export default class App extends Vue {}
+export default class App extends Vue {
+
+  title: string = ''
+
+  minimize () {
+    const window = remote.BrowserWindow.getFocusedWindow()
+    window!.minimize()
+  }
+  maximize () {
+    const window = remote.BrowserWindow.getFocusedWindow()
+    window!.maximize()
+  }
+  close () {
+    const window = remote.BrowserWindow.getFocusedWindow()
+    window!.close()
+  }
+
+  created () {
+    this.title = document.title
+  }
+
+}
 </script>
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+<style lang='sass'>
+.titlebar
+  -webkit-app-region: drag
+  -webkit-user-select: none
+.icon
+  -webkit-app-region: no-drag
+
+::-webkit-scrollbar
+  width: 5px
+  height: 5px
+
+::-webkit-scrollbar-button
+  width: 0px
+  height: 0px
+
+::-webkit-scrollbar-thumb
+  background: #5e5e5e
+  border: 0px none #ffffff
+  border-radius: 50px
+
+::-webkit-scrollbar-thumb:hover
+  background: #828282
+
+::-webkit-scrollbar-thumb:active
+  background: #333333
+
+::-webkit-scrollbar-track
+  background: #333333
+  border: 0px none #ffffff
+  border-radius: 50px
+
+::-webkit-scrollbar-track:hover
+  background: #666666
+
+::-webkit-scrollbar-track:active
+  background: #666666
+
+::-webkit-scrollbar-corner
+  background: transparent
 </style>
