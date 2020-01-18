@@ -1,4 +1,4 @@
-# electronui
+# ShittyJsonEditor
 
 ## Project setup
 ```
