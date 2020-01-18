@@ -1,9 +1,14 @@
 <template>
-  <v-container fill-height fluid>
+  <v-container fluid>
   <v-snackbar absolute top right multi-line :color="info.type" :value="info.text" :timeout="2000">{{info.text}}</v-snackbar>
-    <v-row justify="center" v-if="json === null">
+    <v-row v-if="json === null">
       <v-col align="center">
-        <v-btn color="success" @click="openJson()" :loading="loading">Datei Öffnen</v-btn>
+        <v-btn color="warning" @click="openJson()" :loading="loading">Datei Öffnen</v-btn>
+      </v-col>
+    </v-row>
+    <v-row v-if="json === null">
+      <v-col align="center">
+        <v-btn color="success" @click="json = [{ name: 'Unbenannt', symptoms: ['Unbenannt'], category: 'Internistisch' }]" :loading="loading">Neue Datei</v-btn>
       </v-col>
     </v-row>
     <v-row v-if="json" class=align>
@@ -78,11 +83,14 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import { remote, OpenDialogReturnValue } from 'electron'
-import { readFile, writeFileSync } from 'fs'
+import { readFile, writeFile } from 'fs'
 import { promisify } from 'util'
 import { IDisease, TCategory } from '../types/disease'
+import { homedir } from 'os'
+import { join } from 'path'
 
 const readFileAsync = promisify(readFile)
+const writeFileAsync = promisify(writeFile)
 
 @Component
 export default class Main extends Vue {
@@ -166,9 +174,22 @@ export default class Main extends Vue {
     localStorage.json = JSON.stringify(this.json)
   }
 
-  saveJson () {
-    writeFileSync(this.filePath, JSON.stringify(this.json))
-    this.info = { type: 'success', text: 'Erfolgreich gespeichert!' }
+  async saveJson () {
+    this.loading = true
+    if (this.filePath) {
+      await writeFileAsync(join(this.filePath, 'krankheiten.json'), JSON.stringify(this.json))
+        .catch(e => { this.info = { type: 'error', text: 'Fehler beim Speichern: ' + e } })
+      this.info = { type: 'success', text: 'Erfolgreich gespeichert!' }
+    }
+    if (!this.filePath) {
+      const path = await remote.dialog.showOpenDialog({ title: 'Datei Speichern', defaultPath: homedir(), properties: ['openDirectory'] })
+      if (!path.canceled) {
+        this.filePath = path.filePaths![0]
+        this.saveJson()
+      } else {
+        this.info = { type: 'error', text: 'Fehler beim Speichern: Von Benutzer abgebrochen' }
+      }
+    }
   }
 
 }
