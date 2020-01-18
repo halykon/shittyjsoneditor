@@ -50,6 +50,7 @@ export default class App extends Vue {
   close () {
     const window = remote.BrowserWindow.getFocusedWindow()
     window!.close()
+    localStorage.clear()
   }
 
   created () {
